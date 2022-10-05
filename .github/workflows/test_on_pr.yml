@@ -1,0 +1,21 @@
+name: Test on Pull Request
+on: [pull_request]
+jobs:
+  PullRequest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Make a new envfile
+        uses: SpicyPizza/create-envfile@v1
+        #precisamos criar um .env file por que o nosso está no gitignore
+        with:
+          envkey_POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          envkey_POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          envkey_POSTGRES_DB: "students_test"
+          envkey_DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          file_name: .env.test
+      - name: Run tests
+        run: docker-compose -f docker-compose-test.yml run sorteio_app npm test
+      - name: Build
+        run: npm i && npm run build
